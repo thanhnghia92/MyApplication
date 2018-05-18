@@ -28,6 +28,7 @@
         <include
             android:id="@+id/drop_down_view"
             android:layout_height="160dp"
+            android:visibility="gone"
             android:layout_width="match_parent"
             layout="@layout/item"/>
 

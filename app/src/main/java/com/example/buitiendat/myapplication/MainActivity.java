@@ -29,6 +29,7 @@ import com.daasuu.ei.EasingInterpolator;
 import java.util.ArrayList;
 import java.util.List;
 
+import recyclerview.animators.CustomItemAnimator;
 import recyclerview.animators.SlideInDownAnimator;
 
 
@@ -49,15 +50,23 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         rcv.setLayoutManager(mLayoutManager);
-        SlideInDownAnimator slideInDownAnimator=new SlideInDownAnimator(new Interpolator() {
+//        SlideInDownAnimator slideInDownAnimator=new SlideInDownAnimator(new Interpolator() {
+//            @Override
+//            public float getInterpolation(float input) {
+//                return (float) (Math.pow(2, (-10 * input)) * Math.sin(((2* Math.PI) * (input - (0.3f/4)))/0.3f) + 1);
+//            }
+//        });
+//        rcv.setItemAnimator(slideInDownAnimator);
+        CustomItemAnimator customItemAnimator=new CustomItemAnimator();
+        customItemAnimator.setDefaultInterpolator(new Interpolator() {
             @Override
             public float getInterpolation(float input) {
                 return (float) (Math.pow(2, (-10 * input)) * Math.sin(((2* Math.PI) * (input - (0.3f/4)))/0.3f) + 1);
             }
         });
-        rcv.setItemAnimator(slideInDownAnimator);
-        rcv.getItemAnimator().setAddDuration(1000);
-        rcv.getItemAnimator().setMoveDuration(100);
+        rcv.setItemAnimator(customItemAnimator);
+        rcv.getItemAnimator().setAddDuration(5000);
+        rcv.getItemAnimator().setMoveDuration(5000);
        // rcv.getItemAnimator().setChangeDuration(1000);
         List<String> list = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
@@ -77,41 +86,45 @@ public class MainActivity extends AppCompatActivity {
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewDropDown.getLayoutParams();
-                params.setMargins(0, -300, 0, 0);
-                viewDropDown.setVisibility(View.VISIBLE);
-                ObjectAnimator animator = ObjectAnimator.ofFloat(viewDropDown, "translationY", 0, 300);
-                animator.setInterpolator(new EasingInterpolator(Ease.LINEAR));
-                animator.setStartDelay(100);
-                animator.setDuration(1000);
-                animator.start();
-                animator.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
+                adapter.mList.add(0,"i "+0);
+                adapter.notifyItemInserted(0);
 
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        viewDropDown.setVisibility(View.GONE);
-                        adapter.isLoad = true;
-                        //adapter.notifyDataSetChanged();
-                       // adapter.notifyItemChanged(0);//notifyDataSetChanged();
-                        adapter.notifyItemInserted(01);
-                       // adapter.notifyItemChanged(2);
-                      //  adapter.notifyItemChanged(3);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
+                rcv.scrollToPosition(0);
+//                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewDropDown.getLayoutParams();
+//                params.setMargins(0, -300, 0, 0);
+//                viewDropDown.setVisibility(View.VISIBLE);
+//                ObjectAnimator animator = ObjectAnimator.ofFloat(viewDropDown, "translationY", 0, 300);
+//                animator.setInterpolator(new EasingInterpolator(Ease.LINEAR));
+//                animator.setStartDelay(100);
+//                animator.setDuration(1000);
+//                animator.start();
+//                animator.addListener(new Animator.AnimatorListener() {
+//                    @Override
+//                    public void onAnimationStart(Animator animation) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        viewDropDown.setVisibility(View.GONE);
+//                        adapter.isLoad = true;
+//                        //adapter.notifyDataSetChanged();
+//                       // adapter.notifyItemChanged(0);//notifyDataSetChanged();
+//                        adapter.notifyItemInserted(0);
+//                       // adapter.notifyItemChanged(2);
+//                      //  adapter.notifyItemChanged(3);
+//                    }
+//
+//                    @Override
+//                    public void onAnimationCancel(Animator animation) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAnimationRepeat(Animator animation) {
+//
+//                    }
+//                });
             }
         });
     }
@@ -182,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 //                setBounceAnimation(holder.itemView, position + 1);
 //            }
 
-            holder.mNumber.setText(position + "");
+            holder.mNumber.setText(mList.get(position) + "");
 
             holder.imgFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override

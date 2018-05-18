@@ -43,7 +43,7 @@ public class SlideInDownAnimator extends BaseItemAnimator {
         .translationY(-holder.itemView.getHeight())
         .alpha(0)
         .setDuration(getRemoveDuration())
-        .setInterpolator(mInterpolator)
+        //.setInterpolator(mInterpolator)
         .setListener(new DefaultRemoveVpaListener(holder))
         .setStartDelay(getRemoveDelay(holder))
         .start();
@@ -51,8 +51,27 @@ public class SlideInDownAnimator extends BaseItemAnimator {
 
   @Override
   protected void preAnimateAddImpl(RecyclerView.ViewHolder holder) {
-    Log.i("dcm","preAnimateAddImpl");
+    Log.i("dcm","preAnimateAddImpl "+holder.getAdapterPosition());
     holder.itemView.setTranslationY(-holder.itemView.getHeight());
+    ViewCompat.animate(holder.itemView)
+            .translationY(0)
+            .alpha(1)
+            .setDuration(getAddDuration())
+            .setInterpolator(mInterpolator)
+//            .setInterpolator(new Interpolator() {
+//              @Override
+//              public float getInterpolation(float input) {
+//                return input;
+//              }
+//            })
+            .setListener(new DefaultAddVpaListener(holder))
+            .setStartDelay(getAddDelay(holder))
+            .start();
+//    ObjectAnimator objectAnimator=ObjectAnimator.ofFloat(holder.itemView, "translationY", -holder.itemView.getHeight(),0);
+//    objectAnimator.setInterpolator();
+//    //animator.setStartDelay(100);
+//    objectAnimator.setDuration(1000);
+//    objectAnimator.start();
   }
 
   @Override
@@ -61,21 +80,30 @@ public class SlideInDownAnimator extends BaseItemAnimator {
     super.preAnimateRemoveImpl(holder);
   }
 
+//  @Override
+//  protected void preAnimationChangeImpl(RecyclerView.ViewHolder holder) {
+//    super.preAnimationChangeImpl(holder);
+//  }
+
   @Override
   protected void animateAddImpl(final RecyclerView.ViewHolder holder) {
-    Log.i("dcm","animateAddImpl");
-    ObjectAnimator objectAnimator=ObjectAnimator.ofFloat(holder.itemView, "translationY", 0, 60, 0);
-    objectAnimator.setInterpolator(new EasingInterpolator(Ease.SWING));
-    //animator.setStartDelay(100);
-    objectAnimator.setDuration(getAddDuration());
-    objectAnimator.start();
+    Log.i("dcm","animateAddImpl "+holder.getAdapterPosition());
+//    ObjectAnimator objectAnimator=ObjectAnimator.ofFloat(holder.itemView, "translationY", 0,100,0);
+//    objectAnimator.setInterpolator(new EasingInterpolator(Ease.SWING));
+//    //animator.setStartDelay(100);
+//    objectAnimator.setDuration(getAddDuration());
+//    objectAnimator.start();
 //    ViewCompat.animate(holder.itemView)
 //        .translationY(0)
-//        .alpha(1)
 //        .setDuration(getAddDuration())
 //        .setInterpolator(mInterpolator)
-//        .setListener(new DefaultAddVpaListener(holder))
-//        .setStartDelay(getAddDelay(holder))
+//        //.setListener(new DefaultAddVpaListener(holder))
+//        //.setStartDelay(getAddDelay(holder))
 //        .start();
   }
+
+//  @Override
+//  protected void animateChangeImpl(RecyclerView.ViewHolder holder) {
+//
+//  }
 }
