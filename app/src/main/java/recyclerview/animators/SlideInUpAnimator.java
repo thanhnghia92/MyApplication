@@ -50,6 +50,11 @@ public class SlideInUpAnimator extends BaseItemAnimator {
     ViewCompat.setAlpha(holder.itemView, 0);
   }
 
+//  @Override
+//  protected void preAnimationChangeImpl(RecyclerView.ViewHolder holder) {
+//    super.preAnimationChangeImpl(holder);
+//  }
+
   @Override
   protected void animateAddImpl(final RecyclerView.ViewHolder holder) {
     ViewCompat.animate(holder.itemView)
@@ -61,4 +66,9 @@ public class SlideInUpAnimator extends BaseItemAnimator {
         .setStartDelay(getAddDelay(holder))
         .start();
   }
+
+//  @Override
+//  protected void animateChangeImpl(RecyclerView.ViewHolder holder) {
+//
+//  }
 }

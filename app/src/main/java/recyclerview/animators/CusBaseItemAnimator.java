@@ -20,7 +20,6 @@ package recyclerview.animators;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
@@ -35,7 +34,7 @@ import recyclerview.animators.holder.AnimateViewHolder;
 import recyclerview.internal.ViewHelper;
 
 
-public abstract class BaseItemAnimator extends SimpleItemAnimator {
+public abstract class CusBaseItemAnimator extends SimpleItemAnimator {
 
     private static final boolean DEBUG = false;
 
@@ -101,7 +100,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         }
     }
 
-    public BaseItemAnimator() {
+    public CusBaseItemAnimator() {
         super();
         setSupportsChangeAnimations(false);
     }
@@ -125,6 +124,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
             doAnimateRemove(holder);
         }
         mPendingRemovals.clear();
+
         // Next, move stuff
         if (movesPending) {
             final ArrayList<MoveInfo> moves = new ArrayList<MoveInfo>();
@@ -153,6 +153,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
                 mover.run();
             }
         }
+
         // Next, change stuff, to run in parallel with move animations
         if (changesPending) {
             final ArrayList<ChangeInfo> changes = new ArrayList<ChangeInfo>();
@@ -210,19 +211,25 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
                 adder.run();
             }
         }
+
     }
 
-    protected void preAnimateRemoveImpl(final RecyclerView.ViewHolder holder) {
+    protected void preAnimateRemoveImpl(final ViewHolder holder) {
     }
 
-    protected void preAnimateAddImpl(final RecyclerView.ViewHolder holder) {
+    protected void preAnimateAddImpl(final ViewHolder holder) {
     }
 
-    protected abstract void animateRemoveImpl(final RecyclerView.ViewHolder holder);
+    protected void preAnimationChangeImpl(final ViewHolder holder){
+    }
 
-    protected abstract void animateAddImpl(final RecyclerView.ViewHolder holder);
+    protected abstract void animateRemoveImpl(final ViewHolder holder);
 
-    private void preAnimateRemove(final RecyclerView.ViewHolder holder) {
+    protected abstract void animateAddImpl(final ViewHolder holder);
+
+    protected abstract void animateChangeImpl(final ViewHolder holder);
+
+    private void preAnimateRemove(final ViewHolder holder) {
         ViewHelper.clear(holder.itemView);
 
         if (holder instanceof AnimateViewHolder) {
@@ -232,7 +239,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         }
     }
 
-    private void preAnimateAdd(final RecyclerView.ViewHolder holder) {
+    private void preAnimateAdd(final ViewHolder holder) {
         ViewHelper.clear(holder.itemView);
 
         if (holder instanceof AnimateViewHolder) {
@@ -242,7 +249,16 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         }
     }
 
-    private void doAnimateRemove(final RecyclerView.ViewHolder holder) {
+    private void preAnimateChange(final ViewHolder holder){
+        ViewHelper.clear(holder.itemView);
+        if(holder instanceof AnimateViewHolder){
+            ((AnimateViewHolder)holder).preAnimateChangeImpl(holder);
+        }else{
+            preAnimationChangeImpl(holder);
+        }
+    }
+
+    private void doAnimateRemove(final ViewHolder holder) {
         if (holder instanceof AnimateViewHolder) {
             ((AnimateViewHolder) holder).animateRemoveImpl(holder, new DefaultRemoveVpaListener(holder));
         } else {
@@ -252,7 +268,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         mRemoveAnimations.add(holder);
     }
 
-    private void doAnimateAdd(final RecyclerView.ViewHolder holder) {
+    private void doAnimateAdd(final ViewHolder holder) {
         if (holder instanceof AnimateViewHolder) {
             ((AnimateViewHolder) holder).animateAddImpl(holder, new DefaultAddVpaListener(holder));
         } else {
@@ -260,6 +276,16 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         }
 
         mAddAnimations.add(holder);
+    }
+
+    private void doAnimationChange(final ViewHolder holder){
+        if(holder instanceof AnimateViewHolder){
+            ((AnimateViewHolder)holder).animateChangeImpl(holder,new DefaultAddVpaListener(holder));
+        }else{
+            animateChangeImpl(holder);
+        }
+
+        mChangeAnimations.add(holder);
     }
 
     @Override
@@ -270,7 +296,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         return true;
     }
 
-    protected long getRemoveDelay(final RecyclerView.ViewHolder holder) {
+    protected long getRemoveDelay(final ViewHolder holder) {
         return Math.abs(holder.getOldPosition() * getRemoveDuration() / 4);
     }
 
@@ -282,7 +308,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         return true;
     }
 
-    protected long getAddDelay(final RecyclerView.ViewHolder holder) {
+    protected long getAddDelay(final ViewHolder holder) {
         return Math.abs(holder.getAdapterPosition() * getAddDuration() / 4);
     }
 
@@ -323,7 +349,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
         // need listener functionality in VPACompat for this. Ick.
         mMoveAnimations.add(holder);
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
-        animation.setInterpolator(mInterpolator).setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
+        animation.setDuration(getMoveDuration()).setListener(new VpaListenerAdapter() {
             @Override
             public void onAnimationStart(View view) {
                 dispatchMoveStarting(holder);
@@ -352,6 +378,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
     @Override
     public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder, int fromX, int fromY,
                                  int toX, int toY) {
+        Log.i("dcm","animateChange");
         final float prevTranslationX = ViewCompat.getTranslationX(oldHolder.itemView);
         final float prevTranslationY = ViewCompat.getTranslationY(oldHolder.itemView);
         final float prevAlpha = ViewCompat.getAlpha(oldHolder.itemView);
@@ -374,6 +401,7 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
     }
 
     private void animateChangeImpl(final ChangeInfo changeInfo) {
+        Log.i("dcm","animateChangeImpl");
         final ViewHolder holder = changeInfo.oldHolder;
         final View view = holder == null ? null : holder.itemView;
         final ViewHolder newHolder = changeInfo.newHolder;
@@ -682,9 +710,9 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
 
     protected class DefaultAddVpaListener extends VpaListenerAdapter {
 
-        RecyclerView.ViewHolder mViewHolder;
+        ViewHolder mViewHolder;
 
-        public DefaultAddVpaListener(final RecyclerView.ViewHolder holder) {
+        public DefaultAddVpaListener(final ViewHolder holder) {
             mViewHolder = holder;
         }
 
@@ -709,9 +737,9 @@ public abstract class BaseItemAnimator extends SimpleItemAnimator {
 
     protected class DefaultRemoveVpaListener extends VpaListenerAdapter {
 
-        RecyclerView.ViewHolder mViewHolder;
+        ViewHolder mViewHolder;
 
-        public DefaultRemoveVpaListener(final RecyclerView.ViewHolder holder) {
+        public DefaultRemoveVpaListener(final ViewHolder holder) {
             mViewHolder = holder;
         }
 
