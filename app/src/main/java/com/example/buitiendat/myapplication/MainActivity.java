@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,16 +58,23 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 //        rcv.setItemAnimator(slideInDownAnimator);
-        CustomItemAnimator customItemAnimator=new CustomItemAnimator();
+        CustomItemAnimator customItemAnimator=new CustomItemAnimator(){
+            @Override
+            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder) {
+                return false;
+            }
+        };
         customItemAnimator.setDefaultInterpolator(new Interpolator() {
             @Override
             public float getInterpolation(float input) {
                 return (float) (Math.pow(2, (-10 * input)) * Math.sin(((2* Math.PI) * (input - (0.3f/4)))/0.3f) + 1);
             }
         });
+
         rcv.setItemAnimator(customItemAnimator);
         rcv.getItemAnimator().setAddDuration(5000);
         rcv.getItemAnimator().setMoveDuration(5000);
+        rcv.getItemAnimator().setChangeDuration(2000);
        // rcv.getItemAnimator().setChangeDuration(1000);
         List<String> list = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
@@ -86,8 +94,11 @@ public class MainActivity extends AppCompatActivity {
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.mList.add(0,"i "+0);
-                adapter.notifyItemInserted(0);
+
+                adapter.mList.set(0,"dcm");
+                adapter.notifyItemChanged(0);
+                adapter.notifyItemChanged(1);
+                adapter.notifyItemChanged(2);
 
                 rcv.scrollToPosition(0);
 //                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewDropDown.getLayoutParams();
@@ -161,6 +172,11 @@ public class MainActivity extends AppCompatActivity {
                     .inflate(R.layout.item, parent, false);
 
             return new MyViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position, List<Object> payloads) {
+            super.onBindViewHolder(holder, position, payloads);
         }
 
         @Override
